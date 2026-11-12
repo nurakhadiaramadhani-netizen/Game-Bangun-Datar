@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Petualangan Bangun Datar - Matematika Kelas 5 SD</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts: Fredoka & Quicksand for playful child-friendly typography -->
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  
+  <style>
+    body {
+      font-family: 'Quicksand', sans-serif;
+      background: linear-gradient(135deg, #a8ff78 0%, #78ffd6 100%);
+      min-height: 100vh;
+      user-select: none;
+    }
+    .font-fredoka {
+      font-family: 'Fredoka', cursive;
+    }
+    
+    /* Playful Animations & Styles */
+    .bounce-hover:hover {
+      transform: scale(1.05) translateY(-4px);
+      transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    
+    .btn-shadow {
+      box-shadow: 0 6px 0 rgba(0,0,0,0.15);
+    }
+    .btn-shadow:active {
+      box-shadow: 0 2px 0 rgba(0,0,0,0.15);
+      transform: translateY(4px);
+    }
+
+    .pulse-glow {
+      animation: pulseGlow 2s infinite;
+    }
+    
+    @keyframes pulseGlow {
+      0%, 100% { filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8)); }
+      50% { filter: drop-shadow(0 0 18px rgba(255, 215, 0, 0.9)); }
+    }
+
+    /* Mascot Speech Bubble */
+    .speech-bubble {
+      position: relative;
+      background: #ffffff;
+      border-radius: 1.5rem;
+      border: 3px solid #4F46E5;
+    }
+    .speech-bubble:after {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      width: 0;
+      height: 0;
+      border: 12px solid transparent;
+      border-right-color: #4F46E5;
+      border-left: 0;
+      margin-top: -12px;
+      margin-left: -12px;
+    }
+
+    /* Custom Canvas Styling */
+    #shapeCanvas {
+      filter: drop-shadow(0px 8px 12px rgba(0,0,0,0.1));
+    }
+  </style>
+</head>
+<body class="flex flex-col items-center justify-between p-3 md:p-6 min-h-screen text-slate-800">
+
+  <!-- TOP HEADER / NAV BAR -->
+  <header class="w-full max-w-4xl flex items-center justify-between bg-white/90 backdrop-blur-md px-4 py-3 rounded-2xl shadow-lg border-2 border-white mb-4">
+    <div class="flex items-center space-x-3">
+      <div class="bg-amber-400 text-amber-900 w-10 h-10 rounded-full flex items-center justify-center font-bold text-xl shadow">
+        <i class="fa-solid fa-shapes"></i>
+      </div>
+      <div>
+        <h1 class="font-fredoka text-lg md:text-xl text-indigo-700 tracking-wide">Petualangan Bangun Datar</h1>
+        <p class="text-xs text-slate-500 font-semibold">Matematika Kelas 5 SD</p>
+      </div>
+    </div>
+
+    <!-- Stats Display (Score, Combo, Sound Toggle) -->
+    <div class="flex items-center space-x-3 md:space-x-5">
+      <div class="flex items-center space-x-1 bg-amber-100 px-3 py-1.5 rounded-full border border-amber-300">
+        <i class="fa-solid fa-star text-amber-500 text-sm md:text-base animate-bounce"></i>
+        <span id="scoreDisplay" class="font-fredoka text-amber-700 font-bold text-sm md:text-lg">0</span>
+      </div>
+
+      <div class="flex items-center space-x-1 bg-rose-100 px-3 py-1.5 rounded-full border border-rose-300">
+        <i class="fa-solid fa-fire text-rose-500 text-sm md:text-base"></i>
+        <span id="comboDisplay" class="font-fredoka text-rose-700 font-bold text-sm md:text-lg">x0</span>
+      </div>
+
+      <button id="soundToggleBtn" onclick="toggleSound()" class="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition">
+        <i id="soundIcon" class="fa-solid fa-volume-high text-sm"></i>
+      </button>
+
+      <button onclick="openFormulaModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-fredoka px-3 py-1.5 rounded-xl text-xs md:text-sm btn-shadow flex items-center space-x-1.5 transition">
+        <i class="fa-solid fa-book-open"></i>
+        <span class="hidden sm:inline">Buku Rumus</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="w-full max-w-4xl flex-1 flex flex-col justify-center">
+
+    <!-- WELCOME / MENU SCREEN -->
+    <section id="menuScreen" class="bg-white/95 rounded-3xl p-6 md:p-8 shadow-2xl border-4 border-indigo-200 text-center space-y-6">
+      <div class="inline-block bg-indigo-100 text-indigo-600 px-4 py-1.5 rounded-full font-fredoka text-sm mb-2">
+        ✨ Belajar Matematika Sambil Bermain ✨
+      </div>
+      <h2 class="font-fredoka text-3xl md:text-5xl text-indigo-600 tracking-wide leading-tight">
+        Ayo Jelajahi Dunia <br><span class="text-amber-500">Bangun Datar!</span>
+      </h2>
+      <p class="text-slate-600 max-w-md mx-auto text-sm md:text-base">
+        Bantu <strong class="text-indigo-600">Robi si Robot Pintar</strong> menyelesaikan misi menghitung Luas & Keliling bangun datar!
+      </p>
+
+      <!-- Mascot Preview -->
+      <div class="relative w-36 h-36 mx-auto my-4">
+        <div class="w-full h-full bg-amber-300 rounded-full flex items-center justify-center shadow-inner pulse-glow">
+          <i class="fa-solid fa-robot text-7xl text-indigo-700"></i>
+        </div>
+      </div>
+
+      <!-- Mode Selector Buttons -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-lg mx-auto pt-2">
+        <button onclick="startGame('adventure')" class="bg-emerald-500 hover:bg-emerald-600 text-white font-fredoka text-lg py-4 px-6 rounded-2xl btn-shadow transition bounce-hover flex items-center justify-center space-x-3">
+          <i class="fa-solid fa-map-location-dot text-2xl"></i>
+          <span>Mode Petualangan</span>
+        </button>
+        <button onclick="startGame('practice')" class="bg-amber-500 hover:bg-amber-600 text-white font-fredoka text-lg py-4 px-6 rounded-2xl btn-shadow transition bounce-hover flex items-center justify-center space-x-3">
+          <i class="fa-solid fa-gamepad text-2xl"></i>
+          <span>Mode Latihan Bebas</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- GAME PLAY SCREEN -->
+    <section id="gameScreen" class="hidden flex-col gap-4">
+      
+      <!-- Progress Bar & Level Indicator -->
+      <div class="bg-white/90 p-3 rounded-2xl shadow-sm border border-white flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+          <span class="font-fredoka text-indigo-600 text-sm md:text-base">Soal <span id="currentQuestionNum">1</span> / <span id="totalQuestionsNum">10</span></span>
+        </div>
+        <!-- Health / Lives -->
+        <div id="livesContainer" class="flex space-x-1 text-rose-500 text-lg">
+          <i class="fa-solid fa-heart"></i>
+          <i class="fa-solid fa-heart"></i>
+          <i class="fa-solid fa-heart"></i>
+        </div>
+        <!-- Progress Line -->
+        <div class="w-1/3 bg-slate-200 h-3 rounded-full overflow-hidden">
+          <div id="progressBar" class="bg-emerald-500 h-full w-0 transition-all duration-300"></div>
+        </div>
+      </div>
+
+      <!-- Mascot & Question Area -->
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+        
+        <!-- Mascot Speech & Guide -->
+        <div class="md:col-span-4 flex items-center md:flex-col md:text-center space-x-3 md:space-x-0 bg-indigo-50 p-4 rounded-2xl border-2 border-indigo-200">
+          <div class="w-16 h-16 md:w-24 md:h-24 bg-amber-400 rounded-full flex-shrink-0 flex items-center justify-center shadow">
+            <i id="mascotIcon" class="fa-solid fa-robot text-3xl md:text-5xl text-indigo-900 transition-transform duration-300"></i>
+          </div>
+          <div class="mt-0 md:mt-3">
+            <h3 class="font-fredoka text-indigo-800 text-sm md:text-base" id="mascotName">Robi Si Robot</h3>
+            <p id="mascotDialogue" class="text-xs md:text-sm text-slate-700 font-semibold italic mt-1">
+              "Hitung dengan teliti ya, teman-teman!"
+            </p>
+          </div>
+        </div>
+
+        <!-- Question Box & Dynamic Interactive Canvas -->
+        <div class="md:col-span-8 bg-white p-5 rounded-3xl shadow-xl border-4 border-indigo-100 flex flex-col items-center">
+          
+          <div class="inline-block bg-indigo-100 text-indigo-700 font-fredoka px-4 py-1 rounded-full text-xs md:text-sm mb-2" id="questionCategory">
+            Kategori: Luas
+          </div>
+
+          <h2 id="questionText" class="font-fredoka text-center text-slate-800 text-base md:text-xl mb-3">
+            Berapakah Luas Persegi Panjang di bawah ini?
+          </h2>
+
+          <!-- Dynamic HTML5 Canvas for Shape Drawing -->
+          <div class="relative w-full flex justify-center items-center bg-slate-50 rounded-2xl p-2 border border-slate-200 min-h-[180px]">
+            <canvas id="shapeCanvas" width="320" height="180" class="max-w-full h-auto"></canvas>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ANSWER OPTIONS CONTAINER -->
+      <div class="bg-white/90 p-4 md:p-6 rounded-3xl shadow-lg border-2 border-white">
+        <p class="text-center font-fredoka text-slate-500 text-xs md:text-sm mb-3">PILIH JAWABAN YANG BENAR:</p>
+        <div id="optionsGrid" class="grid grid-cols-2 gap-3 md:gap-4">
+          <!-- Dynamic Answer Buttons will be generated here -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- GAME OVER / RESULTS SCREEN -->
+    <section id="resultScreen" class="hidden bg-white/95 rounded-3xl p-6 md:p-8 shadow-2xl border-4 border-indigo-200 text-center space-y-6">
+      <div class="inline-block bg-amber-100 text-amber-700 px-4 py-1 rounded-full font-fredoka text-sm">
+        🎉 Misi Selesai! 🎉
+      </div>
+      
+      <h2 class="font-fredoka text-3xl md:text-4xl text-indigo-700">Hasil Petualanganmu</h2>
+
+      <!-- Stars Display -->
+      <div id="starsContainer" class="flex justify-center space-x-3 text-4xl text-amber-400">
+        <i class="fa-solid fa-star"></i>
+        <i class="fa-solid fa-star"></i>
+        <i class="fa-solid fa-star"></i>
+      </div>
+
+      <div class="bg-indigo-50 p-4 rounded-2xl max-w-md mx-auto space-y-2 border border-indigo-100">
+        <p class="text-slate-600 text-sm">Skor Akhir Kamu:</p>
+        <p id="finalScore" class="font-fredoka text-4xl text-indigo-600">0</p>
+        <p id="resultMessage" class="text-xs md:text-sm text-slate-700 font-semibold italic pt-2">
+          "Luar biasa! Kamu adalah Master Bangun Datar!"
+        </p>
+      </div>
+
+      <div class="flex justify-center space-x-4">
+        <button onclick="showMenu()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-fredoka px-6 py-3 rounded-2xl btn-shadow transition">
+          <i class="fa-solid fa-house mr-1"></i> Menu Utama
+        </button>
+        <button onclick="startGame(currentGameMode)" class="bg-emerald-500 hover:bg-emerald-600 text-white font-fredoka px-6 py-3 rounded-2xl btn-shadow transition bounce-hover">
+          <i class="fa-solid fa-rotate-right mr-1"></i> Main Lagi
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FORMULA BOOK MODAL (Buku Rumus Ajaib) -->
+  <div id="formulaModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl border-4 border-amber-300 max-h-[90vh] overflow-y-auto relative">
+      
+      <button onclick="closeFormulaModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-2xl w-8 h-8 flex items-center justify-center">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="flex items-center space-x-3 mb-6">
+        <div class="bg-amber-400 text-amber-900 w-12 h-12 rounded-2xl flex items-center justify-center text-2xl font-bold shadow">
+          <i class="fa-solid fa-book-bookmark"></i>
+        </div>
+        <div>
+          <h3 class="font-fredoka text-2xl text-indigo-700">Buku Rumus Ajaib</h3>
+          <p class="text-xs text-slate-500">Panduan Rumus Luas & Keliling Bangun Datar</p>
+        </div>
+      </div>
+
+      <!-- Formula Cards Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        
+        <!-- Persegi -->
+        <div class="bg-emerald-50 p-4 rounded-2xl border border-emerald-200">
+          <h4 class="font-fredoka text-emerald-800 text-lg mb-1">1. Persegi</h4>
+          <p class="text-xs text-slate-600 mb-2">Memiliki 4 sisi sama panjang.</p>
+          <div class="text-xs font-semibold space-y-1 bg-white p-2.5 rounded-xl border border-emerald-100">
+            <p><span class="text-emerald-600">Luas (L)</span> = s × s</p>
+            <p><span class="text-emerald-600">Keliling (K)</span> = 4 × s</p>
+          </div>
+        </div>
+
+        <!-- Persegi Panjang -->
+        <div class="bg-blue-50 p-4 rounded-2xl border border-blue-200">
+          <h4 class="font-fredoka text-blue-800 text-lg mb-1">2. Persegi Panjang</h4>
+          <p class="text-xs text-slate-600 mb-2">Memiliki Panjang (p) dan Lebar (l).</p>
+          <div class="text-xs font-semibold space-y-1 bg-white p-2.5 rounded-xl border border-blue-100">
+            <p><span class="text-blue-600">Luas (L)</span> = p × l</p>
+            <p><span class="text-blue-600">Keliling (K)</span> = 2 × (p + l)</p>
+          </div>
+        </div>
+
+        <!-- Segitiga -->
+        <div class="bg-purple-50 p-4 rounded-2xl border border-purple-200">
+          <h4 class="font-fredoka text-purple-800 text-lg mb-1">3. Segitiga</h4>
+          <p class="text-xs text-slate-600 mb-2">Memiliki Alas (a) dan Tinggi (t).</p>
+          <div class="text-xs font-semibold space-y-1 bg-white p-2.5 rounded-xl border border-purple-100">
+            <p><span class="text-purple-600">Luas (L)</span> = (a × t) ÷ 2</p>
+            <p><span class="text-purple-600">Keliling (K)</span> = s1 + s2 + s3</p>
+          </div>
+        </div>
+
+        <!-- Jajar Genjang -->
+        <div class="bg-amber-50 p-4 rounded-2xl border border-amber-200">
+          <h4 class="font-fredoka text-amber-800 text-lg mb-1">4. Jajar Genjang</h4>
+          <p class="text-xs text-slate-600 mb-2">Memiliki Alas (a), Tinggi (t), & Sisi Miring (b).</p>
+          <div class="text-xs font-semibold space-y-1 bg-white p-2.5 rounded-xl border border-amber-100">
+            <p><span class="text-amber-600">Luas (L)</span> = a × t</p>
+            <p><span class="text-amber-600">Keliling (K)</span> = 2 × (a + b)</p>
+          </div>
+        </div>
+
+        <!-- Lingkaran -->
+        <div class="bg-rose-50 p-4 rounded-2xl border border-rose-200 md:col-span-2">
+          <h4 class="font-fredoka text-rose-800 text-lg mb-1">5. Lingkaran</h4>
+          <p class="text-xs text-slate-600 mb-2">Memiliki Jari-jari (r). Gunakan π = 22/7 atau 3.14</p>
+          <div class="text-xs font-semibold space-y-1 bg-white p-2.5 rounded-xl border border-rose-100 grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <p><span class="text-rose-600">Luas (L)</span> = π × r × r</p>
+            <p><span class="text-rose-600">Keliling (K)</span> = 2 × π × r</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="mt-6 text-center">
+        <button onclick="closeFormulaModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-fredoka px-6 py-2.5 rounded-xl btn-shadow transition">
+          Saya Mengerti!
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXPLANATION / STEPS MODAL (Pembahasan Jawaban Salah) -->
+  <div id="explanationModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border-4 border-rose-300 text-center space-y-4">
+      <div class="w-16 h-16 bg-rose-100 text-rose-500 rounded-full flex items-center justify-center mx-auto text-3xl">
+        <i class="fa-solid fa-lightbulb"></i>
+      </div>
+      <h3 class="font-fredoka text-2xl text-rose-600">Yuk Pelajari Langkahnya!</h3>
+      
+      <div id="explanationContent" class="text-left bg-slate-50 p-4 rounded-2xl border border-slate-200 text-slate-700 text-sm space-y-2 font-medium">
+        <!-- Dynamic Explanation Text Here -->
+      </div>
+
+      <button onclick="closeExplanationModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-fredoka px-6 py-2.5 rounded-xl btn-shadow transition w-full">
+        Lanjut Ke Soal Berikutnya <i class="fa-solid fa-arrow-right ml-1"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="w-full max-w-4xl text-center text-xs text-indigo-950/70 font-semibold py-2 mt-4">
+    Media Pembelajaran Interaktif Matematika SD Kelas 5 &copy; 2026
+  </footer>
+
+  <!-- AUDIO SYNTHESIZER & GAME LOGIC SCRIPT -->
+  <script>
+    /* ==========================================
+       AUDIO SYNTHESIZER (Web Audio API)
+       Tidak membutuhkan file audio eksternal
+       ========================================== */
+    let audioCtx = null;
+    let isSoundMuted = false;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    }
+
+    function playSound(type) {
+      if (isSoundMuted) return;
+      initAudio();
+      if (!audioCtx) return;
+
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      const now = audioCtx.currentTime;
+
+      if (type === 'correct') {
+        // High melody tone for correct answer
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(523.25, now); // C5
+        osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.1); // E5
+        osc.frequency.exponentialRampToValueAtTime(783.99, now + 0.2); // G5
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+        osc.start(now);
+        osc.stop(now + 0.35);
+      } else if (type === 'wrong') {
+        // Low tone for wrong answer
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(180, now);
+        osc.frequency.exponentialRampToValueAtTime(110, now + 0.2);
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+        osc.start(now);
+        osc.stop(now + 0.3);
+      } else if (type === 'click') {
+        // Short pop tone for UI click
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(400, now);
+        gain.gain.setValueAtTime(0.1, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+        osc.start(now);
+        osc.stop(now + 0.08);
+      }
+    }
+
+    function toggleSound() {
+      isSoundMuted = !isSoundMuted;
+      const icon = document.getElementById('soundIcon');
+      if (isSoundMuted) {
+        icon.className = 'fa-solid fa-volume-xmark text-slate-400';
+      } else {
+        icon.className = 'fa-solid fa-volume-high text-indigo-600';
+        playSound('click');
+      }
+    }
+
+    /* ==========================================
+       GAME STATE & QUESTION GENERATOR
+       ========================================== */
+    let currentGameMode = 'adventure';
+    let currentQuestionIndex = 0;
+    let totalQuestions = 10;
+    let score = 0;
+    let combo = 0;
+    let lives = 3;
+    let currentQuestion = null;
+
+    // Array Mascot Dialogue Responses
+    const mascotDialogues = {
+      start: ["Ayo kita mulai petualangannya!", "Siapkan pensil dan otak cemerlangmu!", "Bangun datar itu sangat seru!"],
+      correct: ["Hebat sekali! Jawabanmu Tepat! 🎉", "Waaah pintar banget kamu! ⭐", "Luar biasa, tingkatkan terus! 🔥"],
+      wrong: ["Jangan menyerah, yuk pelajari rumusnya! 💪", "Hampir tepat! Coba lagi di soal berikutnya ya! 😊"]
+    };
+
+    function getRandomDialogue(type) {
+      const arr = mascotDialogues[type];
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    // Question Generator for Grade 5 Math
+    function generateQuestion() {
+      const shapes = ['square', 'rectangle', 'triangle', 'parallelogram', 'circle'];
+      const categories = ['Luas', 'Keliling'];
+      
+      const shape = shapes[Math.floor(Math.random() * shapes.length)];
+      const category = categories[Math.floor(Math.random() * categories.length)];
+      
+      let qData = {
+        shape: shape,
+        category: category,
+        title: "",
+        params: {},
+        answer: 0,
+        explanation: "",
+        unit: category === 'Luas' ? 'cm²' : 'cm'
+      };
+
+      if (shape === 'square') {
+        const s = Math.floor(Math.random() * 10) + 3; // side 3-12
+        qData.params = { s };
+        if (category === 'Luas') {
+          qData.title = `Hitunglah Luas Persegi dengan panjang sisi ${s} cm!`;
+          qData.answer = s * s;
+          qData.explanation = `
+            <p><strong>Rumus Luas Persegi:</strong> s × s</p>
+            <p><strong>Diketahui:</strong> Sisi (s) = ${s} cm</p>
+            <p><strong>Perhitungan:</strong> ${s} × ${s} = <span class="text-emerald-600 font-bold">${qData.answer} cm²</span></p>
+          `;
+        } else {
+          qData.title = `Hitunglah Keliling Persegi dengan panjang sisi ${s} cm!`;
+          qData.answer = 4 * s;
+          qData.explanation = `
+            <p><strong>Rumus Keliling Persegi:</strong> 4 × s</p>
+            <p><strong>Diketahui:</strong> Sisi (s) = ${s} cm</p>
+            <p><strong>Perhitungan:</strong> 4 × ${s} = <span class="text-emerald-600 font-bold">${qData.answer} cm</span></p>
+          `;
+        }
+      } 
+      else if (shape === 'rectangle') {
+        const p = Math.floor(Math.random() * 8) + 5; // 5-12
+        const l = Math.floor(Math.random() * 4) + 2; // 2-5
+        qData.params = { p, l };
+        if (category === 'Luas') {
+          qData.title = `Berapakah Luas Persegi Panjang dengan panjang ${p} cm dan lebar ${l} cm?`;
+          qData.answer = p * l;
+          qData.explanation = `
+            <p><strong>Rumus Luas Persegi Panjang:</strong> Panjang (p) × Lebar (l)</p>
+            <p><strong>Diketahui:</strong> p = ${p} cm, l = ${l} cm</p>
+            <p><strong>Perhitungan:</strong> ${p} × ${l} = <span class="text-emerald-600 font-bold">${qData.answer} cm²</span></p>
+          `;
+        } else {
+          qData.title = `Berapakah Keliling Persegi Panjang dengan panjang ${p} cm dan lebar ${l} cm?`;
+          qData.answer = 2 * (p + l);
+          qData.explanation = `
+            <p><strong>Rumus Keliling Persegi Panjang:</strong> 2 × (p + l)</p>
+            <p><strong>Diketahui:</strong> p = ${p} cm, l = ${l} cm</p>
+            <p><strong>Perhitungan:</strong> 2 × (${p} + ${l}) = 2 × ${p + l} = <span class="text-emerald-600 font-bold">${qData.answer} cm</span></p>
+          `;
+        }
+      }
+      else if (shape === 'triangle') {
+        const a = (Math.floor(Math.random() * 5) + 2) * 2; // even numbers 4-12
+        const t = Math.floor(Math.random() * 6) + 3; // 3-8
+        const s2 = a; // simplified isosceles
+        const s3 = t + 2;
+        qData.params = { a, t, s2, s3 };
+
+        if (category === 'Luas') {
+          qData.title = `Hitunglah Luas Segitiga dengan alas ${a} cm dan tinggi ${t} cm!`;
+          qData.answer = (a * t) / 2;
+          qData.explanation = `
+            <p><strong>Rumus Luas Segitiga:</strong> (Alas × Tinggi) ÷ 2</p>
+            <p><strong>Diketahui:</strong> Alas (a) = ${a} cm, Tinggi (t) = ${t} cm</p>
+            <p><strong>Perhitungan:</strong> (${a} × ${t}) ÷ 2 = ${a * t} ÷ 2 = <span class="text-emerald-600 font-bold">${qData.answer} cm²</span></p>
+          `;
+        } else {
+          qData.title = `Berapa Keliling Segitiga jika panjang sisi-sisinya ${a} cm, ${s2} cm, dan ${s3} cm?`;
+          qData.answer = a + s2 + s3;
+          qData.explanation = `
+            <p><strong>Rumus Keliling Segitiga:</strong> Jumlahkan ketiga sisinya (s1 + s2 + s3)</p>
+            <p><strong>Perhitungan:</strong> ${a} + ${s2} + ${s3} = <span class="text-emerald-600 font-bold">${qData.answer} cm</span></p>
+          `;
+        }
+      }
+      else if (shape === 'parallelogram') {
+        const a = Math.floor(Math.random() * 6) + 5; // 5-10
+        const t = Math.floor(Math.random() * 5) + 3; // 3-7
+        const b = Math.floor(Math.random() * 4) + 4; // side b
+        qData.params = { a, t, b };
+
+        if (category === 'Luas') {
+          qData.title = `Hitung Luas Jajar Genjang dengan alas ${a} cm dan tinggi ${t} cm!`;
+          qData.answer = a * t;
+          qData.explanation = `
+            <p><strong>Rumus Luas Jajar Genjang:</strong> Alas (a) × Tinggi (t)</p>
+            <p><strong>Diketahui:</strong> a = ${a} cm, t = ${t} cm</p>
+            <p><strong>Perhitungan:</strong> ${a} × ${t} = <span class="text-emerald-600 font-bold">${qData.answer} cm²</span></p>
+          `;
+        } else {
+          qData.title = `Hitung Keliling Jajar Genjang dengan alas ${a} cm dan sisi miring ${b} cm!`;
+          qData.answer = 2 * (a + b);
+          qData.explanation = `
+            <p><strong>Rumus Keliling Jajar Genjang:</strong> 2 × (a + b)</p>
+            <p><strong>Diketahui:</strong> alas (a) = ${a} cm, sisi miring (b) = ${b} cm</p>
+            <p><strong>Perhitungan:</strong> 2 × (${a} + ${b}) = 2 × ${a + b} = <span class="text-emerald-600 font-bold">${qData.answer} cm</span></p>
+          `;
+        }
+      }
+      else if (shape === 'circle') {
+        const rChoice = [7, 14, 21, 10];
+        const r = rChoice[Math.floor(Math.random() * rChoice.length)];
+        const pi = (r % 7 === 0) ? 22/7 : 3.14;
+        const piText = (r % 7 === 0) ? "22/7" : "3.14";
+        qData.params = { r };
+
+        if (category === 'Luas') {
+          qData.title = `Berapa Luas Lingkaran dengan jari-jari (r) = ${r} cm? (Gunakan π = ${piText})`;
+          qData.answer = Math.round(pi * r * r);
+          qData.explanation = `
+            <p><strong>Rumus Luas Lingkaran:</strong> π × r × r</p>
+            <p><strong>Diketahui:</strong> r = ${r} cm, π = ${piText}</p>
+            <p><strong>Perhitungan:</strong> ${piText} × ${r} × ${r} = <span class="text-emerald-600 font-bold">${qData.answer} cm²</span></p>
+          `;
+        } else {
+          qData.title = `Berapa Keliling Lingkaran dengan jari-jari (r) = ${r} cm? (Gunakan π = ${piText})`;
+          qData.answer = Math.round(2 * pi * r);
+          qData.explanation = `
+            <p><strong>Rumus Keliling Lingkaran:</strong> 2 × π × r</p>
+            <p><strong>Diketahui:</strong> r = ${r} cm, π = ${piText}</p>
+            <p><strong>Perhitungan:</strong> 2 × ${piText} × ${r} = <span class="text-emerald-600 font-bold">${qData.answer} cm</span></p>
+          `;
+        }
+      }
+
+      // Generate 4 Multiple Choice Options (1 Correct + 3 Distractors)
+      const options = [qData.answer];
+      while (options.length < 4) {
+        let offset = (Math.floor(Math.random() * 5) + 1) * (Math.random() < 0.5 ? 1 : -1) * 2;
+        let wrongOption = qData.answer + offset;
+        if (wrongOption > 0 && !options.includes(wrongOption)) {
+          options.push(wrongOption);
+        }
+      }
+
+      // Shuffle Options
+      qData.options = options.sort(() => Math.random() - 0.5);
+
+      return qData;
+    }
+
+    /* ==========================================
+       CANVAS DRAWING FUNCTIONS (DYNAMIC SHAPES)
+       ========================================== */
+    function drawShapeOnCanvas(q) {
+      const canvas = document.getElementById('shapeCanvas');
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = '#4F46E5'; // Indigo stroke
+      ctx.fillStyle = '#EEF2FF'; // Light Indigo fill
+      ctx.font = 'bold 13px Quicksand, sans-serif';
+
+      if (q.shape === 'square') {
+        const size = 90;
+        const x = centerX - size / 2;
+        const y = centerY - size / 2;
+
+        ctx.fillRect(x, y, size, size);
+        ctx.strokeRect(x, y, size, size);
+
+        // Label Sisi
+        ctx.fillStyle = '#1E1B4B';
+        ctx.fillText(`s = ${q.params.s} cm`, centerX - 25, y + size + 20);
+      }
+      else if (q.shape === 'rectangle') {
+        const w = 140;
+        const h = 80;
+        const x = centerX - w / 2;
+        const y = centerY - h / 2;
+
+        ctx.fillRect(x, y, w, h);
+        ctx.strokeRect(x, y, w, h);
+
+        // Labels
+        ctx.fillStyle = '#1E1B4B';
+        ctx.fillText(`p = ${q.params.p} cm`, centerX - 25, y + h + 20);
+        ctx.fillText(`l = ${q.params.l} cm`, x + w + 8, centerY + 5);
+      }
+      else if (q.shape === 'triangle') {
+        const b = 130;
+        const h = 90;
+        const x1 = centerX - b/2, y1 = centerY + h/2;
+        const x2 = centerX + b/2, y2 = centerY + h/2;
+        const x3 = centerX, y3 = centerY - h/2;
+
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.lineTo(x3, y3);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Draw Height Dashed Line
+        ctx.beginPath();
+        ctx.setLineDash([5, 5]);
+        ctx.strokeStyle = '#EF4444';
+        ctx.moveTo(centerX, y3);
+        ctx.lineTo(centerX, y1);
+        ctx.stroke();
+        ctx.setLineDash([]); // Reset line dash
+
+        // Labels
+        ctx.fillStyle = '#1E1B4B';
+        ctx.fillText(`a = ${q.params.a} cm`, centerX - 25, y1 + 20);
+        ctx.fillStyle = '#EF4444';
+        ctx.fillText(`t = ${q.params.t} cm`, centerX + 8, centerY);
+      }
+      else if (q.shape === 'parallelogram') {
+        const w = 110;
+        const h = 75;
+        const skew = 35;
+        const x = centerX - w/2;
+        const y = centerY - h/2;
+
+        ctx.beginPath();
+        ctx.moveTo(x + skew, y);
+        ctx.lineTo(x + w + skew, y);
+        ctx.lineTo(x + w, y + h);
+        ctx.lineTo(x, y + h);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Labels
+        ctx.fillStyle = '#1E1B4B';
+        ctx.fillText(`a = ${q.params.a} cm`, centerX - 15, y + h + 20);
+        if (q.params.t) {
+          ctx.beginPath();
+          ctx.setLineDash([4, 4]);
+          ctx.strokeStyle = '#EF4444';
+          ctx.moveTo(x + skew, y);
+          ctx.lineTo(x + skew, y + h);
+          ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.fillStyle = '#EF4444';
+          ctx.fillText(`t = ${q.params.t} cm`, x + skew - 45, centerY);
+        }
+      }
+      else if (q.shape === 'circle') {
+        const radius = 55;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.stroke();
+
+        // Radius Line
+        ctx.beginPath();
+        ctx.strokeStyle = '#EF4444';
+        ctx.moveTo(centerX, centerY);
+        ctx.lineTo(centerX + radius, centerY);
+        ctx.stroke();
+
+        // Center point
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, 4, 0, 2 * Math.PI);
+        ctx.fillStyle = '#EF4444';
+        ctx.fill();
+
+        // Label
+        ctx.fillStyle = '#1E1B4B';
+        ctx.fillText(`r = ${q.params.r} cm`, centerX + 10, centerY - 10);
+      }
+    }
+
+    /* ==========================================
+       GAME FLOW & INTERACTION LOGIC
+       ========================================== */
+    function showMenu() {
+      playSound('click');
+      document.getElementById('menuScreen').classList.remove('hidden');
+      document.getElementById('gameScreen').classList.add('hidden');
+      document.getElementById('resultScreen').classList.add('hidden');
+    }
+
+    function startGame(mode) {
+      playSound('click');
+      currentGameMode = mode;
+      score = 0;
+      combo = 0;
+      lives = 3;
+      currentQuestionIndex = 0;
+
+      document.getElementById('scoreDisplay').innerText = score;
+      document.getElementById('comboDisplay').innerText = 'x' + combo;
+      updateLivesDisplay();
+
+      document.getElementById('menuScreen').classList.add('hidden');
+      document.getElementById('resultScreen').classList.add('hidden');
+      document.getElementById('gameScreen').classList.remove('hidden');
+      document.getElementById('gameScreen').classList.add('flex');
+
+      loadNextQuestion();
+    }
+
+    function updateLivesDisplay() {
+      const container = document.getElementById('livesContainer');
+      container.innerHTML = '';
+      for (let i = 0; i < 3; i++) {
+        if (i < lives) {
+          container.innerHTML += '<i class="fa-solid fa-heart animate-pulse"></i>';
+        } else {
+          container.innerHTML += '<i class="fa-regular fa-heart text-slate-300"></i>';
+        }
+      }
+    }
+
+    function loadNextQuestion() {
+      if (currentQuestionIndex >= totalQuestions || lives <= 0) {
+        endGame();
+        return;
+      }
+
+      currentQuestionIndex++;
+      document.getElementById('currentQuestionNum').innerText = currentQuestionIndex;
+      document.getElementById('totalQuestionsNum').innerText = totalQuestions;
+      
+      // Update Progress Bar
+      const progressPercent = (currentQuestionIndex / totalQuestions) * 100;
+      document.getElementById('progressBar').style.width = `${progressPercent}%`;
+
+      // Mascot Dialogue
+      document.getElementById('mascotDialogue').innerText = `"${getRandomDialogue('start')}"`;
+
+      // Generate & Render Question
+      currentQuestion = generateQuestion();
+      document.getElementById('questionCategory').innerText = `Kategori: ${currentQuestion.category}`;
+      document.getElementById('questionText').innerText = currentQuestion.title;
+
+      // Draw Shape Canvas
+      drawShapeOnCanvas(currentQuestion);
+
+      // Render Multiple Choice Buttons
+      const optionsGrid = document.getElementById('optionsGrid');
+      optionsGrid.innerHTML = '';
+
+      currentQuestion.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = `bg-indigo-50 hover:bg-indigo-100 text-indigo-900 border-2 border-indigo-200 font-fredoka text-xl py-4 rounded-2xl btn-shadow bounce-hover transition flex items-center justify-center space-x-2`;
+        btn.innerHTML = `<span>${opt} ${currentQuestion.unit}</span>`;
+        btn.onclick = () => checkAnswer(opt, btn);
+        optionsGrid.appendChild(btn);
+      });
+    }
+
+    function checkAnswer(selectedOpt, btnElement) {
+      // Disable all option buttons to prevent multiple taps
+      const buttons = document.querySelectorAll('#optionsGrid button');
+      buttons.forEach(b => b.disabled = true);
+
+      if (selectedOpt === currentQuestion.answer) {
+        // CORRECT ANSWER
+        playSound('correct');
+        btnElement.classList.remove('bg-indigo-50', 'border-indigo-200');
+        btnElement.classList.add('bg-emerald-500', 'text-white', 'border-emerald-600');
+
+        combo++;
+        const addedScore = 100 + (combo * 20);
+        score += addedScore;
+
+        document.getElementById('scoreDisplay').innerText = score;
+        document.getElementById('comboDisplay').innerText = 'x' + combo;
+        document.getElementById('mascotDialogue').innerText = `"${getRandomDialogue('correct')}"`;
+
+        // Trigger Confetti Effect
+        confetti({
+          particleCount: 50,
+          spread: 60,
+          origin: { y: 0.7 }
+        });
+
+        setTimeout(() => {
+          loadNextQuestion();
+        }, 1400);
+
+      } else {
+        // WRONG ANSWER
+        playSound('wrong');
+        btnElement.classList.remove('bg-indigo-50', 'border-indigo-200');
+        btnElement.classList.add('bg-rose-500', 'text-white', 'border-rose-600');
+
+        combo = 0;
+        lives--;
+        document.getElementById('comboDisplay').innerText = 'x' + combo;
+        updateLivesDisplay();
+        document.getElementById('mascotDialogue').innerText = `"${getRandomDialogue('wrong')}"`;
+
+        setTimeout(() => {
+          openExplanationModal();
+        }, 800);
+      }
+    }
+
+    /* ==========================================
+       MODAL CONTROLLERS (Formula & Explanation)
+       ========================================== */
+    function openFormulaModal() {
+      playSound('click');
+      document.getElementById('formulaModal').classList.remove('hidden');
+      document.getElementById('formulaModal').classList.add('flex');
+    }
+
+    function closeFormulaModal() {
+      playSound('click');
+      document.getElementById('formulaModal').classList.add('hidden');
+      document.getElementById('formulaModal').classList.remove('flex');
+    }
+
+    function openExplanationModal() {
+      document.getElementById('explanationContent').innerHTML = currentQuestion.explanation;
+      document.getElementById('explanationModal').classList.remove('hidden');
+      document.getElementById('explanationModal').classList.add('flex');
+    }
+
+    function closeExplanationModal() {
+      playSound('click');
+      document.getElementById('explanationModal').classList.add('hidden');
+      document.getElementById('explanationModal').classList.remove('flex');
+      loadNextQuestion();
+    }
+
+    /* ==========================================
+       END GAME & RESULT SCREEN
+       ========================================== */
+    function endGame() {
+      document.getElementById('gameScreen').classList.add('hidden');
+      document.getElementById('resultScreen').classList.remove('hidden');
+      document.getElementById('finalScore').innerText = score;
+
+      // Calculate Stars (1 to 3)
+      const starsContainer = document.getElementById('starsContainer');
+      const resultMessage = document.getElementById('resultMessage');
+
+      let starsHtml = '';
+      if (score >= 800) {
+        starsHtml = '<i class="fa-solid fa-star text-amber-400"></i><i class="fa-solid fa-star text-amber-400"></i><i class="fa-solid fa-star text-amber-400"></i>';
+        resultMessage.innerText = '"Luar Biasa! Kamu adalah Jagoan Bangun Datar Super!" 🏆';
+        confetti({ particleCount: 100, spread: 100, origin: { y: 0.5 } });
+      } else if (score >= 400) {
+        starsHtml = '<i class="fa-solid fa-star text-amber-400"></i><i class="fa-solid fa-star text-amber-400"></i><i class="fa-regular fa-star text-slate-300"></i>';
+        resultMessage.innerText = '"Bagus sekali! Sedikit latihan lagi kamu akan jadi yang terbaik!" ⭐';
+      } else {
+        starsHtml = '<i class="fa-solid fa-star text-amber-400"></i><i class="fa-regular fa-star text-slate-300"></i><i class="fa-regular fa-star text-slate-300"></i>';
+        resultMessage.innerText = '"Tetap semangat ya! Buka Buku Rumus Ajaib dan coba lagi!" 💪';
+      }
+
+      starsContainer.innerHTML = starsHtml;
+    }
+
+    // Window Resize Handler for Canvas
+    window.addEventListener('resize', () => {
+      if (currentQuestion) {
+        drawShapeOnCanvas(currentQuestion);
+      }
+    });
+  </script>
+</body>
+</html>
